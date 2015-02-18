@@ -9,10 +9,6 @@ module Functional
         Try { super }
       end
 
-      def update!(*)
-        Try { super }
-      end
-
       def update_columns(*)
         Try { super }
       end
