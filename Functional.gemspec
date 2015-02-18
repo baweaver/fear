@@ -22,4 +22,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3.1'
   spec.add_development_dependency 'concurrent-ruby', '~> 0.8'
   spec.add_development_dependency 'concurrent-ruby-ext'
+  spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'activerecord', '~> 4.2'
 end

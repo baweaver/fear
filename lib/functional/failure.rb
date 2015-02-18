@@ -8,6 +8,10 @@ module Functional
 
     attr_reader :exception
 
+    def failure?
+      true
+    end
+
     def success?
       false
     end
