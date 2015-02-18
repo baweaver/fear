@@ -8,5 +8,11 @@ module Functional
     include Persistence
     include Validations
     include Core
+
+    def self.prepended(base)
+      class << base
+        prepend Functional::ActiveRecord::ClassMethods
+      end
+    end
   end
 end
