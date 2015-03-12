@@ -43,6 +43,7 @@ module Functional
   #
   module Try
     include Contracts
+    include Contracts::Modules
 
     # @return [true, false] +true+ if the +Try+ is a +Success+,
     #   +false+ otherwise.

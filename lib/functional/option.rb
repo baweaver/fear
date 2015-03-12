@@ -43,6 +43,7 @@ module Functional
   #
   module Option
     include Contracts
+    include Contracts::Modules
 
     Contract Contracts::None => None
     def self.empty
