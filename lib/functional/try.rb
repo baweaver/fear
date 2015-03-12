@@ -42,10 +42,13 @@ module Functional
   # @see https://github.com/scala/scala/blob/2.11.x/src/library/scala/util/Try.scala
   #
   module Try
+    include Contracts
+
     # @return [true, false] +true+ if the +Try+ is a +Success+,
     #   +false+ otherwise.
     # @abstract
     #
+    Contract Contracts::None => Bool
     def success?
       fail NotImplementedError
     end
@@ -53,6 +56,7 @@ module Functional
     # @return [true, false] +true+ if the +Try+ is a +Failure+,
     #   +false+ otherwise.
     #
+    Contract Contracts::None => Bool
     def failure?
       !success?
     end
@@ -70,6 +74,7 @@ module Functional
     # @raise exception if it is not a success and +block+
     #   throws an exception.
     #
+    Contract Func[Contracts::None => Any] => Any
     def get_or_else
       if success?
         get
@@ -81,17 +86,19 @@ module Functional
     # @return [self] if it's a +Success+
     # @yieldreturn if this is a +Failure+
     #
+    Contract Func[Contracts::None => Or[Success, Failure]] => Or[Success, Failure]
     def or_else
       if success?
         self
       else
-        Try { yield }.flatten
+        yield
       end
     end
 
     # @return [None] if this is a +Failure+
     # @return [Some<value>] if this is a +Success+.
     #
+    Contract Contracts::None => Or[Some, None]
     def to_option
       if success?
         Some(get)
@@ -104,6 +111,7 @@ module Functional
     # into an un-nested +Try+, ie, a +Success+.
     # @return [Try]
     #
+    Contract Contracts::None => Or[Success, Failure]
     def flatten
       if success? && get.is_a?(Try)
         get.flatten
@@ -119,6 +127,7 @@ module Functional
     # @note if +block+ throws exception, then this method may
     # throw an exception.
     #
+    Contract Func[Not[StandardError] => Any] => Or[Success, Failure]
     def each
       yield get if success?
       self
@@ -127,6 +136,7 @@ module Functional
     # @return [Try] the given function applied to the value from this
     #   +Success+ or returns +self+ if this is a +Failure+.
     #
+    Contract Func[Not[StandardError] => Any] => Or[Success, Failure]
     def flat_map(&block)
       map(&block).flatten
     end
@@ -135,6 +145,7 @@ module Functional
     # +Success+ or returns +self+ if this is a +Failure+.
     # @return [Try]
     #
+    Contract Func[Not[StandardError] => Any] => Or[Success, Failure]
     def map(&block)
       if success?
         Try { block.call(get) }
@@ -147,6 +158,7 @@ module Functional
     # is not satisfied.
     # @return [Try]
     #
+    Contract Func[Not[StandardError] => Bool] => Or[Success, Failure]
     def select(&predicate)
       return self if failure?
       Try do
@@ -163,6 +175,7 @@ module Functional
     # This is like +flat_map+ for the exception.
     # @return [Try]
     #
+    Contract Func[StandardError => Any] => Or[Success, Failure]
     def recover_with(&block)
       if success?
         self
@@ -176,6 +189,7 @@ module Functional
     # This is like map for the exception.
     # @return [Try]
     #
+    Contract Func[StandardError => Any] => Or[Success, Failure]
     def recover(&block)
       if success?
         self
