@@ -1,3 +1,4 @@
+require 'contracts'
 require 'functional/version'
 
 module Functional

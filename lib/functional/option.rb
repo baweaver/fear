@@ -42,8 +42,9 @@ module Functional
   # @see https://github.com/scala/scala/blob/2.11.x/src/library/scala/Option.scala
   #
   module Option
-    BLOCK_REQUIRED = 'block required'.freeze
+    include Contracts
 
+    Contract Contracts::None => None
     def self.empty
       None()
     end
@@ -52,13 +53,15 @@ module Functional
     #   false otherwise.
     # @abstract
     #
+    Contract Contracts::None => Bool
     def empty?
-      assert_method_defined!('empty?')
+      fail NotImplementedError
     end
 
     # @return [true, false] true if the option is an instance
     #   of +Some+, false otherwise.
     #
+    Contract Contracts::None => Bool
     def present?
       !empty?
     end
@@ -67,8 +70,9 @@ module Functional
     # @raise [NoMethodError] if called on +None+
     # @abstract
     #
+    Contract Contracts::None => Any
     def get
-      assert_method_defined!('get')
+      fail NotImplementedError
     end
 
     # @return [Object] the option's value if it is nonempty
@@ -80,9 +84,8 @@ module Functional
     # @example if +Option+ is empty
     #   Option(params[:name]).get_or_else('No name') #=> 'No name'
     #
+    Contract Func[Contracts::None => Any] => Any
     def get_or_else(&default)
-      fail ArgumentError, BLOCK_REQUIRED unless block_given?
-
       if empty?
         default.call
       else
@@ -103,6 +106,7 @@ module Functional
     # @example if +Option+ is empty
     #   User.find(params[:id]).or_nil #=> nil
     #
+    Contract Contracts::None => Or[Any, nil]
     def or_nil
       get_or_else { nil }
     end
@@ -120,9 +124,8 @@ module Functional
     # @example if +Option+ is empty
     #   User.find(params[:id]).map(&:email) #=> None()
     #
+    Contract Func[Not[nil] => Not[nil]] => Or[Some, None]
     def map(&block)
-      fail ArgumentError, BLOCK_REQUIRED unless block_given?
-
       if empty?
         None()
       else
@@ -146,9 +149,8 @@ module Functional
     #     user.posts.count
     #   end #=> 0
     #
+    Contract Not[nil], Func[Not[nil] => Not[nil]] => Any
     def inject(if_empty, &block)
-      fail ArgumentError, BLOCK_REQUIRED unless block_given?
-
       if empty?
         if_empty
       else
@@ -179,9 +181,8 @@ module Functional
     #     .map(&:posts)
     #     .inject(0, &:count)
     #
+    Contract Func[Not[nil] => Bool] => Or[Some, None]
     def select(&predicate)
-      fail ArgumentError, BLOCK_REQUIRED unless block_given?
-
       if present? && predicate.call(get)
         self
       else
@@ -212,20 +213,13 @@ module Functional
     #     .map { |u| "#{u.name}, write your first blog post" }
     #
     #
+    Contract Func[Not[nil] => Bool] => Or[Some, None]
     def reject(&predicate)
-      fail ArgumentError, BLOCK_REQUIRED unless block_given?
-
       if present? && !predicate.call(get)
         self
       else
         None()
       end
-    end
-
-    private
-
-    def assert_method_defined!(method)
-      fail NotImplementedError, "#{self.class.name}##{method}"
     end
   end
 end
