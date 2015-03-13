@@ -68,7 +68,7 @@ RSpec.describe Promise do
     end
 
     it '#failure returns false' do
-      completed = completed_promise.success(error)
+      completed = completed_promise.failure(error)
 
       expect(completed).to be false
     end

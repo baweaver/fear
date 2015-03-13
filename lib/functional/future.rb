@@ -28,6 +28,7 @@ module Functional
   # @see https://github.com/scala/scala/blob/2.11.x/src/library/scala/concurrent/Future.scala
   #
   class Future
+    include Contracts
     NoSuchElementException = Class.new(StandardError)
 
     # @param future [nil, Concurrent::Future] converts
@@ -52,6 +53,7 @@ module Functional
     # @yieldparam [value]
     # @return [self]
     #
+    Contract Func[Not[StandardError] => Any] => Future
     def on_success
       on_complete do |result|
         yield result.get if result.success?
@@ -68,6 +70,7 @@ module Functional
     # @yieldparam [StandardError]
     # @return [self]
     #
+    Contract Func[StandardError => Any] => Future
     def on_failure
       on_complete do |result|
         yield result.exception if result.failure?
@@ -82,6 +85,7 @@ module Functional
     # @yieldparam [Try]
     # @return [self]
     #
+    Contract Func[Or[Success, Failure] => Any] => Future
     def on_complete
       @future.add_observer do |_time, try, _error|
         yield try
@@ -95,6 +99,7 @@ module Functional
     # @return [true, false] +true+ if the future is already
     #   completed, +false+ otherwise.
     #
+    Contract Contracts::None => Bool
     def completed?
       @future.fulfilled?
     end
@@ -107,6 +112,7 @@ module Functional
     #   contains a valid result, or +Some<Failure>+ if it
     #   contains an exception.
     #
+    Contract Contracts::None => Or[Some, None]
     def value
       Option(@future.value(0))
     end
@@ -115,8 +121,9 @@ module Functional
     # becomes available.
     #
     # Will not be called if the future fails.
-    # @see {#on_complete}
+    # @see #on_complete
     #
+    Contract Func[Or[Success, Failure] => Any] => Future
     def each(&block)
       on_complete(&block)
     end
@@ -133,14 +140,15 @@ module Functional
     # @return [Future] a future that will be completed with the
     #   transformed value
     #
+    Contract Func[Not[StandardError] => Not[StandardError]], Func[StandardError => StandardError] => Future
     def transform(s, f)
       promise = Promise.new(@options)
       on_complete do |try|
         case try
         when Success
-          promise.success s.call(try.get)
+          promise.complete Try { s.call(try.get) }
         when Failure
-          promise.failure f.call(try.exception)
+          promise.complete Try { fail f.call(try.exception) }
         end
       end
       promise.future
@@ -152,6 +160,7 @@ module Functional
     #
     # @return [Future]
     #
+    Contract Func[Not[StandardError] => Any] => Future
     def map(&block)
       promise = Promise.new(@options)
       on_complete do |try|
@@ -178,6 +187,7 @@ module Functional
     #   f.select { |value| value % 2 == 1 } # evaluates to 5
     #   f.select { |value| value % 2 == 0 } # fail with NoSuchElementException
     #
+    Contract Func[Not[StandardError] => Bool] => Future
     def select(&predicate)
       map do |result|
         if predicate.call(result)
@@ -197,6 +207,7 @@ module Functional
     # @example
     #   Future { 6 / 0 }.recover { |error| 0  } # result: 0
     #
+    Contract Func[StandardError => Any] => Future
     def recover(&block)
       promise = Promise.new(@options)
       on_complete do |try|

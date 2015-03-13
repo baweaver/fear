@@ -111,7 +111,8 @@ RSpec.describe Future do
   end
 
   context '#transform' do
-    let(:failure) { ->(e) { e.message } }
+    let(:new_error) { ArgumentError.new(error.message) }
+    let(:failure) { ->(_e) { new_error } }
     let(:success) { ->(v) { v * 2 } }
 
     it 'call first callback if successfull' do
@@ -123,7 +124,7 @@ RSpec.describe Future do
     it 'call second callback if failed' do
       value = future { fail error }.transform(success, failure).value
 
-      expect(value).to eq Some(Failure('something went wrong'))
+      expect(value).to eq Some(Failure(new_error))
     end
   end
 
