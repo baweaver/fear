@@ -4,3 +4,4 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'codeclimate-test-reporter', group: :test, require: nil
+gem 'rtc', git: 'https://github.com/plum-umd/rtc'

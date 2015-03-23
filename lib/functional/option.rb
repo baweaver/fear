@@ -1,3 +1,5 @@
+require 'rtc'
+
 module Functional
   # Represents optional values. Instances of +Option+
   # are either an instance of +Some+ or the object +None+.
@@ -41,7 +43,8 @@ module Functional
   #   implement a +Some+ or +None+ value.
   # @see https://github.com/scala/scala/blob/2.11.x/src/library/scala/Option.scala
   #
-  module Option
+  class Option
+    rtc_annotated [:value, :each]
     BLOCK_REQUIRED = 'block required'.freeze
 
     def self.empty
@@ -59,6 +62,7 @@ module Functional
     # @return [true, false] true if the option is an instance
     #   of +Some+, false otherwise.
     #
+    typesig('() -> TrueClass or FalseClass')
     def present?
       !empty?
     end
@@ -67,6 +71,7 @@ module Functional
     # @raise [NoMethodError] if called on +None+
     # @abstract
     #
+    typesig('() -> Symbol')
     def get
       assert_method_defined!('get')
     end
@@ -80,6 +85,7 @@ module Functional
     # @example if +Option+ is empty
     #   Option(params[:name]).get_or_else('No name') #=> 'No name'
     #
+    typesig('() {() -> value} -> Symbol')
     def get_or_else(&default)
       fail ArgumentError, BLOCK_REQUIRED unless block_given?
 
@@ -128,6 +134,10 @@ module Functional
       else
         Some(block.call(get))
       end
+    end
+
+    def each
+      yield get unless empty?
     end
 
     # @param if_empty [Object]

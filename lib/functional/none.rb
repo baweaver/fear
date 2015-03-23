@@ -1,6 +1,7 @@
+require 'rtc'
+
 module Functional
-  class None
-    include Option
+  class None < Option
 
     def empty?
       true

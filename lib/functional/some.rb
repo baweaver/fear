@@ -1,9 +1,11 @@
+require 'rtc'
+
 module Functional
-  class Some
-    include Option
+  class Some < Option
 
     # @!attribute get
     #   @return option's value
+    typesig('@get: Symbol')
     attr_reader :get
 
     def initialize(value)
