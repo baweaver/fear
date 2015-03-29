@@ -23,3 +23,9 @@ class TestModel < ActiveRecord::Base
 
   validates :value, presence: true
 end
+
+class AbstractModel < ActiveRecord::Base
+  extend Connections
+
+  self.abstract_class = true
+end

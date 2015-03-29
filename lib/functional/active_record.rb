@@ -1,15 +1,17 @@
 module ActiveRecord
   class Base
     require_relative 'active_record/core'
+    require_relative 'active_record/persistence'
+    require_relative 'active_model/conversion'
     require_relative 'active_record/querying'
     require_relative 'active_record/validations'
-    require_relative 'active_record/persistence'
 
     include Functional::Try
     prepend Functional::ActiveRecord::Core
+    prepend Functional::ActiveRecord::Persistence
+    prepend Functional::ActiveModel::Conversion
     prepend Functional::ActiveRecord::Querying
     prepend Functional::ActiveRecord::Validations
-    prepend Functional::ActiveRecord::Persistence
   end
 end
 

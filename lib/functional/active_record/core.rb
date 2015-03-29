@@ -1,8 +1,6 @@
 module Functional
   module ActiveRecord
     module Core
-      extend ActiveSupport::Concern
-
       module ClassMethods
         def find(*)
           Try { super }
