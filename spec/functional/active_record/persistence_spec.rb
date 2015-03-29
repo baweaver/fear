@@ -57,4 +57,23 @@ RSpec.describe ActiveRecord::Persistence do
       expect(updated.exception).to be_kind_of(::ActiveRecord::ActiveRecordError)
     end
   end
+
+  context '#touch' do
+    it 'return Success if object is persisted' do
+      model = TestModel.create(value: 123)
+
+      touched = model.touch(:updated_at)
+
+      expect(touched).to eq Success(true)
+    end
+
+    it 'return Failure if object is not persisted' do
+      model = TestModel.new(value: 123)
+
+      touched = model.touch(:updated_at)
+
+      expect(touched).to be_kind_of Failure
+      expect(touched.exception).to be_kind_of ActiveRecord::ActiveRecordError
+    end
+  end
 end

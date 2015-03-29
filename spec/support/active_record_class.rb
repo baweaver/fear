@@ -11,7 +11,8 @@ module Connections
     host.connection.execute <<-SQL
       CREATE TABLE #{host.table_name} (
         #{host.primary_key} integer PRIMARY KEY AUTOINCREMENT,
-        value integer
+        value integer,
+        updated_at date
       );
     SQL
   end
@@ -19,7 +20,6 @@ end
 
 class TestModel < ActiveRecord::Base
   extend Connections
-  prepend Functional::ActiveRecord
 
   validates :value, presence: true
 end
